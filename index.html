@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0A0E1A"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="description" content="تحلیل تکنیکال ارزهای دیجیتال و طلا"/>
+  <title>CryptoMind — تحلیل تکنیکال</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0A0E1A; --card:#111827; --card2:#0F172A; --border:#1E293B;
+      --accent:#E11D48; --as:rgba(225,29,72,0.12); --ag:rgba(225,29,72,0.35);
+      --bull:#10B981; --bear:#EF4444; --neutral:#F59E0B; --gold:#D97706;
+      --t1:#F1F5F9; --t2:#94A3B8; --t3:#475569;
+      --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--t1);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+      background-image:linear-gradient(rgba(225,29,72,0.022) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(225,29,72,0.022) 1px,transparent 1px);
+      background-size:44px 44px;}
+    .app{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:16px;}
+
+    /* Header */
+    .header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 22px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+    .logo{display:flex;align-items:center;gap:10px;}
+    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#FB7185);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px var(--ag);}
+    .logo-text{font-size:1.1rem;font-weight:700;letter-spacing:-0.5px;}
+    .logo-text span{color:var(--accent);}
+    .status-pill{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:100px;padding:4px 12px;font-size:0.72rem;font-family:var(--mono);color:var(--bull);}
+    .status-dot{width:6px;height:6px;background:var(--bull);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+    /* Search */
+    .search-row{display:flex;gap:8px;margin-bottom:10px;}
+    .coin-search{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--t1);font-family:var(--mono);font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+    .coin-search:focus{border-color:var(--accent);}
+    .coin-search::placeholder{color:var(--t3);}
+    .search-btn{background:var(--accent);border:none;border-radius:10px;padding:10px 20px;color:#fff;font-family:var(--sans);font-weight:600;font-size:0.85rem;cursor:pointer;transition:opacity 0.2s;white-space:nowrap;}
+    .search-btn:hover{opacity:0.85;}
+    .search-hint{font-size:0.72rem;color:var(--t3);font-family:var(--mono);margin-bottom:12px;padding-right:4px;}
+    .search-hint span{color:var(--accent);}
+
+    /* Quick coins */
+    .quick-label{font-size:0.68rem;font-family:var(--mono);color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;}
+    .coin-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+    .coin-btn{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 13px;color:var(--t2);font-family:var(--mono);font-size:0.77rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:4px;}
+    .coin-btn:hover{border-color:var(--accent);color:var(--t1);}
+    .coin-btn.active{background:var(--as);border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px var(--ag);}
+    .coin-btn.gold-btn{border-color:rgba(217,119,6,0.4);}
+    .coin-btn.gold-btn.active{background:rgba(217,119,6,0.12);border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px rgba(217,119,6,0.3);}
+
+    /* Analyze btn */
+    .analyze-btn{width:100%;padding:13px;background:linear-gradient(135deg,#BE123C,var(--accent),#FB7185);border:none;border-radius:12px;color:#fff;font-family:var(--sans);font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px var(--ag);margin-bottom:20px;}
+    .analyze-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 28px var(--ag);}
+    .analyze-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+    /* Loading */
+    .loading-box{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:18px 22px;font-family:var(--mono);font-size:0.78rem;display:none;margin-bottom:18px;line-height:1.85;max-height:260px;overflow-y:auto;}
+    .loading-box.visible{display:block;}
+    .tl{color:var(--t2);}.tl.done{color:var(--bull);}.tl.active{color:var(--accent);}
+    .cursor{display:inline-block;width:8px;height:13px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:middle;}
+    @keyframes blink{50%{opacity:0}}
+
+    /* Result */
+    .result-wrapper{display:none;}.result-wrapper.visible{display:block;}
+
+    /* Summary card */
+    .summary-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;}
+    .summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#BE123C,var(--accent),#FB7185,transparent);}
+    .summary-card.gold-card::before{background:linear-gradient(90deg,var(--gold),#FBBF24,transparent);}
+    .summary-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px;}
+    .coin-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .coin-name{font-size:1.2rem;font-weight:700;}
+    .live-price{font-family:var(--mono);font-size:1rem;color:var(--t2);}
+    .price-change{font-family:var(--mono);font-size:0.78rem;padding:3px 8px;border-radius:6px;}
+    .price-change.bull{background:rgba(16,185,129,0.15);color:var(--bull);}
+    .price-change.bear{background:rgba(239,68,68,0.15);color:var(--bear);}
+    .verdict-badge{padding:6px 14px;border-radius:8px;font-family:var(--mono);font-size:0.78rem;font-weight:700;letter-spacing:1px;}
+    .verdict-badge.bull{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:var(--bull);}
+    .verdict-badge.bear{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:var(--bear);}
+    .verdict-badge.neutral{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:var(--neutral);}
+
+    .targets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+    .target-cell{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px;text-align:center;}
+    .target-label{font-size:0.63rem;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+    .target-value{font-family:var(--mono);font-size:0.9rem;font-weight:700;}
+    .target-value.bull{color:var(--bull)}.target-value.bear{color:var(--bear)}.target-value.neutral{color:var(--t1)}
+
+    .confidence-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .confidence-label{font-size:0.68rem;color:var(--t2);font-family:var(--mono);white-space:nowrap;min-width:90px;}
+    .confidence-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+    .confidence-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),#38BDF8);transition:width 1s ease;width:0;}
+    .confidence-pct{font-family:var(--mono);font-size:0.76rem;color:var(--accent);min-width:34px;}
+
+    .analysis-text{font-size:0.86rem;line-height:1.75;color:var(--t2);border-top:1px solid var(--border);padding-top:13px;}
+    .algo-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(14,165,233,0.07);border:1px solid rgba(14,165,233,0.2);border-radius:7px;padding:4px 10px;font-family:var(--mono);font-size:0.66rem;color:var(--accent);margin-top:10px;}
+
+    /* Gold section */
+    .gold-info{background:var(--card);border:1px solid rgba(217,119,6,0.3);border-radius:16px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
+    .gold-info::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),#FBBF24,transparent);}
+    .gold-title{font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .gold-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
+    .gold-cell{background:var(--card2);border:1px solid rgba(217,119,6,0.2);border-radius:10px;padding:12px;}
+    .gold-cell-label{font-size:0.63rem;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+    .gold-cell-value{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--gold);}
+    .gold-cell-sub{font-size:0.7rem;color:var(--t3);margin-top:2px;}
+    .gold-note{font-size:0.75rem;color:var(--t3);line-height:1.5;}
+
+    /* Chart */
+    .wave-container{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;overflow:hidden;}
+    .wave-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .wave-title{font-size:0.68rem;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;}
+    .wave-meta{font-size:0.66rem;font-family:var(--mono);color:var(--t3);}
+    canvas#forecastChart{width:100%;height:130px;display:block;}
+    .chart-labels{display:flex;justify-content:space-between;margin-top:6px;font-family:var(--mono);font-size:0.59rem;color:var(--t3);}
+
+    /* Indicators */
+    .ind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;margin-bottom:14px;}
+    .ind-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+    .ind-name{font-size:0.63rem;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+    .ind-value{font-size:0.88rem;font-weight:700;font-family:var(--mono);}
+    .ind-signal{font-size:0.66rem;color:var(--t3);margin-top:2px;}
+    .bull{color:var(--bull)}.bear{color:var(--bear)}.cneutral{color:var(--neutral)}
+
+    /* Timeframes */
+    .timeframes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:14px;}
+    .tf-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
+    .tf-label{font-size:0.63rem;font-family:var(--mono);color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+    .tf-signal{font-size:0.82rem;font-weight:600;margin-bottom:4px;}
+    .tf-detail{font-size:0.72rem;color:var(--t2);line-height:1.5;}
+
+    /* S/R */
+    .levels-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;}
+    .levels-title{font-size:0.68rem;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+    .level-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);}
+    .level-row:last-child{border-bottom:none;}
+    .level-type{font-size:0.7rem;font-family:var(--mono);color:var(--t3);}
+    .level-price{font-size:0.84rem;font-family:var(--mono);font-weight:700;}
+    .level-dist{font-size:0.68rem;font-family:var(--mono);}
+
+    .disclaimer{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:11px 15px;font-size:0.72rem;color:var(--t3);line-height:1.5;margin-top:6px;}
+    .disclaimer strong{color:var(--neutral);}
+    .error-box{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:14px 18px;color:var(--bear);font-size:0.84rem;display:none;margin-bottom:14px;line-height:1.65;}
+    .error-box.visible{display:block;}
+    .retry-note{font-size:0.75rem;color:var(--t3);margin-top:6px;}
+    .timestamp{text-align:center;font-family:var(--mono);font-size:0.64rem;color:var(--t3);margin-top:14px;padding-bottom:18px;}
+
+    @media(max-width:600px){
+      .targets-grid{gap:6px;}
+      .timeframes{grid-template-columns:1fr 1fr;}
+      .ind-grid{grid-template-columns:repeat(3,1fr);}
+      .gold-grid{grid-template-columns:1fr 1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">⬡</div>
+      <div class="logo-text">Crypto<span>Mind</span></div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      ALGO ENGINE
+    </div>
+  </header>
+
+  <!-- Search -->
+  <div class="search-row">
+    <input class="coin-search" id="coinInput" type="text"
+      placeholder="نام یا نماد ارز: bitcoin, BTC, ethereum, solana, pepe ..."
+      maxlength="40"/>
+    <button class="search-btn" onclick="searchCoin()">🔍 تحلیل</button>
+  </div>
+  <div class="search-hint">
+    می‌توانید نماد (<span>BTC</span>) یا نام کامل (<span>bitcoin</span>) بنویسید — هر ارزی که در CoinGecko باشد پشتیبانی می‌شود
+  </div>
+
+  <!-- Quick -->
+  <div class="quick-label">انتخاب سریع</div>
+  <div class="coin-selector" id="coinSelector">
+    <button class="coin-btn active" data-coin="bitcoin"          data-sym="BTC"  onclick="quickCoin(this)">₿ BTC</button>
+    <button class="coin-btn"        data-coin="ethereum"         data-sym="ETH"  onclick="quickCoin(this)">Ξ ETH</button>
+    <button class="coin-btn"        data-coin="binancecoin"      data-sym="BNB"  onclick="quickCoin(this)">◈ BNB</button>
+    <button class="coin-btn"        data-coin="solana"           data-sym="SOL"  onclick="quickCoin(this)">◎ SOL</button>
+    <button class="coin-btn"        data-coin="ripple"           data-sym="XRP"  onclick="quickCoin(this)">✕ XRP</button>
+    <button class="coin-btn"        data-coin="dogecoin"         data-sym="DOGE" onclick="quickCoin(this)">Ð DOGE</button>
+    <button class="coin-btn"        data-coin="cardano"          data-sym="ADA"  onclick="quickCoin(this)">₳ ADA</button>
+    <button class="coin-btn"        data-coin="the-open-network" data-sym="TON"  onclick="quickCoin(this)">◬ TON</button>
+    <button class="coin-btn"        data-coin="pepe"             data-sym="PEPE" onclick="quickCoin(this)">🐸 PEPE</button>
+    <button class="coin-btn"        data-coin="shiba-inu"        data-sym="SHIB" onclick="quickCoin(this)">🐕 SHIB</button>
+    <button class="coin-btn"        data-coin="tron"             data-sym="TRX"  onclick="quickCoin(this)">◉ TRX</button>
+    <button class="coin-btn"        data-coin="polkadot"         data-sym="DOT"  onclick="quickCoin(this)">● DOT</button>
+    <button class="coin-btn"        data-coin="avalanche-2"      data-sym="AVAX" onclick="quickCoin(this)">△ AVAX</button>
+    <button class="coin-btn"        data-coin="chainlink"        data-sym="LINK" onclick="quickCoin(this)">⬡ LINK</button>
+    <button class="coin-btn"        data-coin="near"             data-sym="NEAR" onclick="quickCoin(this)">◎ NEAR</button>
+    <button class="coin-btn gold-btn" data-coin="USDT_IR"  data-sym="USDT" onclick="quickCoin(this)">💵 تتر/تومان</button>
+    <button class="coin-btn gold-btn" data-coin="GOLD_IR"  data-sym="طلا"  onclick="quickCoin(this)">🥇 طلا ۱۸</button>
+  </div>
+
+  <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
+    📡 دریافت داده زنده + تحلیل الگوریتمی ۴۸ ساعته
+  </button>
+
+  <div class="loading-box" id="loadingBox">
+    <div id="termLines"></div>
+    <span class="cursor"></span>
+  </div>
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Gold result -->
+  <div id="goldResult" style="display:none"></div>
+
+  <!-- Crypto result -->
+  <div class="result-wrapper" id="resultWrapper">
+    <div class="summary-card" id="summaryCard">
+      <div class="summary-header">
+        <div class="coin-title">
+          <div class="coin-name" id="resCoinName">—</div>
+          <div class="live-price" id="resLivePrice">—</div>
+          <div class="price-change" id="resPriceChange">—</div>
+        </div>
+        <div class="verdict-badge" id="resVerdict">—</div>
+      </div>
+      <div class="targets-grid">
+        <div class="target-cell"><div class="target-label">هدف ۴۸h صعودی</div><div class="target-value bull" id="resBull">—</div></div>
+        <div class="target-cell"><div class="target-label">قیمت فعلی</div><div class="target-value neutral" id="resBase">—</div></div>
+        <div class="target-cell"><div class="target-label">حمایت ۴۸h</div><div class="target-value bear" id="resBear">—</div></div>
+      </div>
+      <div class="confidence-row">
+        <div class="confidence-label">SIGNAL SCORE</div>
+        <div class="confidence-track"><div class="confidence-fill" id="confBar"></div></div>
+        <div class="confidence-pct" id="confPct">0%</div>
+      </div>
+      <div class="analysis-text" id="resAnalysis">—</div>
+      <div class="algo-badge">⬡ RSI · MACD · Bollinger · EMA20/50/200 · ATR · VWAP · S/R — داده: CoinGecko Live</div>
+    </div>
+
+    <div class="wave-container">
+      <div class="wave-header">
+        <div class="wave-title">⬡ پیش‌بینی قیمت ۴۸ ساعت</div>
+        <div class="wave-meta" id="chartMeta">—</div>
+      </div>
+      <canvas id="forecastChart"></canvas>
+      <div class="chart-labels" id="chartLabels"></div>
+    </div>
+
+    <div class="ind-grid" id="indGrid"></div>
+
+    <div class="timeframes">
+      <div class="tf-card"><div class="tf-label">6 ساعت</div><div class="tf-signal" id="tf6s">—</div><div class="tf-detail" id="tf6d">—</div></div>
+      <div class="tf-card"><div class="tf-label">12 ساعت</div><div class="tf-signal" id="tf12s">—</div><div class="tf-detail" id="tf12d">—</div></div>
+      <div class="tf-card"><div class="tf-label">24 ساعت</div><div class="tf-signal" id="tf24s">—</div><div class="tf-detail" id="tf24d">—</div></div>
+      <div class="tf-card"><div class="tf-label">48 ساعت</div><div class="tf-signal" id="tf48s">—</div><div class="tf-detail" id="tf48d">—</div></div>
+    </div>
+
+    <div class="levels-card">
+      <div class="levels-title">سطوح حمایت و مقاومت</div>
+      <div id="levelsBody"></div>
+    </div>
+
+    <div class="disclaimer"><strong>⚠ هشدار:</strong> این تحلیل بر اساس الگوریتم‌های تکنیکال و داده‌های زنده بازار است. سرمایه‌گذاری بر اساس آن ریسک دارد.</div>
+    <div class="timestamp" id="resTimestamp"></div>
+  </div>
+
+</div>
+<script>
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let activeCoinId  = 'bitcoin';
+let activeCoinSym = 'BTC';
+let isGold        = false;
+let isUsdt        = false;
+let _abortCtrl    = null;
+let _lastReqTime  = 0;
+const RATE_GAP    = 1200;
+const sleep       = ms => new Promise(r => setTimeout(r, ms));
+
+// ═══════════════════════════════════════════
+//  COIN MAP (symbol → CoinGecko id)
+//  مجموعه گسترده — جستجوی آزاد هم پشتیبانی می‌شود
+// ═══════════════════════════════════════════
+const SYM_MAP = {
+  BTC:'bitcoin',ETH:'ethereum',BNB:'binancecoin',SOL:'solana',XRP:'ripple',
+  DOGE:'dogecoin',ADA:'cardano',AVAX:'avalanche-2',TON:'the-open-network',
+  MATIC:'matic-network',POLYGON:'matic-network',
+  LINK:'chainlink',UNI:'uniswap',ATOM:'cosmos',LTC:'litecoin',
+  BCH:'bitcoin-cash',ETC:'ethereum-classic',PEPE:'pepe',SHIB:'shiba-inu',
+  FLOKI:'floki',WIF:'dogwifcoin',BONK:'bonk',BOME:'book-of-meme',
+  TRX:'tron',DOT:'polkadot',NEAR:'near',APT:'aptos',SUI:'sui',
+  OP:'optimism',ARB:'arbitrum',INJ:'injective-protocol',
+  FIL:'filecoin',ICP:'internet-computer',VET:'vechain',
+  ALGO:'algorand',XLM:'stellar',HBAR:'hedera-hashgraph',
+  SAND:'the-sandbox',MANA:'decentraland',AXS:'axie-infinity',
+  IMX:'immutable-x',GRT:'the-graph',AAVE:'aave',
+  MKR:'maker',CRV:'curve-dao-token',SNX:'synthetix-network-token',
+  LDO:'lido-dao',RUNE:'thorchain',KAVA:'kava',
+  FTM:'fantom',ONE:'harmony',CELO:'celo',
+  ZEC:'zcash',XMR:'monero',DASH:'dash',
+  EGLD:'elrond-erd-2',THETA:'theta-token',VET:'vechain',
+  CHZ:'chiliz',ENJ:'enjincoin',BAT:'basic-attention-token',
+  DYDX:'dydx',BLUR:'blur',MAGIC:'magic',
+  SEI:'sei-network',TIA:'celestia',PYTH:'pyth-network',
+  JUP:'jupiter-ag',WEN:'wen-4',POPCAT:'popcat',
+  // stablecoins = نرخ دلار در ایران
+  USDT:'_toman_',USDC:'_toman_',TETHER:'_toman_',
+  DAI:'_stable_',BUSD:'_stable_',TUSD:'_stable_',
+};
+
+function resolveCoinId(input) {
+  const up = input.trim().toUpperCase();
+  if (SYM_MAP[up]) return { id: SYM_MAP[up], sym: up };
+  // try as direct CoinGecko id (lowercase slug)
+  const low = input.trim().toLowerCase();
+  return { id: low, sym: up };
+}
+
+// ═══════════════════════════════════════════
+//  SELECTION
+// ═══════════════════════════════════════════
+function quickCoin(btn) {
+  document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCoinId  = btn.dataset.coin;
+  activeCoinSym = btn.dataset.sym;
+  isGold  = activeCoinId === 'GOLD_IR';
+  isUsdt  = activeCoinId === 'USDT_IR';
+  document.getElementById('coinInput').value = '';
+}
+
+function searchCoin() {
+  const v = document.getElementById('coinInput').value.trim();
+  if (!v) return;
+  if (v.toUpperCase() === 'طلا' || v.toLowerCase().includes('gold')) {
+    activeCoinId='GOLD_IR'; activeCoinSym='طلا'; isGold=true; isUsdt=false;
+    document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-coin="GOLD_IR"]').classList.add('active');
+    runAnalysis(); return;
+  }
+  if (['USDT','USDC','TETHER','تتر','دلار'].includes(v.trim().toUpperCase()) || v.trim()==='تتر' || v.trim()==='دلار') {
+    activeCoinId='USDT_IR'; activeCoinSym='USDT'; isUsdt=true; isGold=false;
+    document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-coin="USDT_IR"]').classList.add('active');
+    runAnalysis(); return;
+  }
+  const { id, sym } = resolveCoinId(v);
+  if (id === '_toman_') {
+    activeCoinId='USDT_IR'; activeCoinSym='USDT'; isUsdt=true; isGold=false;
+    document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-coin="USDT_IR"]').classList.add('active');
+    runAnalysis(); return;
+  }
+  if (id === '_stable_') {
+    showError(`${sym} یک استیبل‌کوین است (همیشه ~$1) — تحلیل تکنیکال برای آن معنی ندارد.`);
+    return;
+  }
+  document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+  activeCoinId  = id;
+  activeCoinSym = sym;
+  isGold = false; isUsdt = false;
+  runAnalysis();
+}
+
+document.getElementById('coinInput').addEventListener('keydown', e=>{ if(e.key==='Enter') searchCoin(); });
+
+// ═══════════════════════════════════════════
+//  LOADING TERMINAL
+// ═══════════════════════════════════════════
+const CRYPTO_STEPS = [
+  'اتصال به CoinGecko API...',
+  'دریافت قیمت لحظه‌ای...',
+  'دریافت OHLC 90 روزه...',
+  'دریافت داده ساعتی 7 روزه...',
+  'محاسبه RSI (14 دوره)...',
+  'محاسبه MACD (12,26,9)...',
+  'محاسبه Bollinger Bands...',
+  'محاسبه EMA 20/50/200...',
+  'محاسبه ATR و VWAP...',
+  'شناسایی حمایت/مقاومت...',
+  'پیش‌بینی مسیر ۴۸ ساعته...',
+  'آماده‌سازی گزارش...'
+];
+const GOLD_STEPS = [
+  'دریافت قیمت جهانی طلا (XAU)...',
+  'دریافت نرخ دلار/تومان...',
+  'محاسبه قیمت مثقال طلا...',
+  'محاسبه طلا ۱۸ عیار...',
+  'محاسبه اجرت و مالیات...',
+  'آماده‌سازی گزارش...'
+];
+const USDT_STEPS = [
+  'دریافت نرخ USDT/IRR از CoinGecko...',
+  'دریافت نرخ‌های تاریخی ۹۰ روزه...',
+  'محاسبه قیمت تتر به تومان...',
+  'محاسبه نوسان و روند...',
+  'آماده‌سازی گزارش نرخ دلار...'
+];
+let _termTimer=null;
+
+function showLoading(steps) {
+  const box=document.getElementById('loadingBox');
+  const lines=document.getElementById('termLines');
+  box.classList.add('visible'); lines.innerHTML='';
+  let i=0; clearInterval(_termTimer);
+  _termTimer=setInterval(()=>{
+    if(i>0&&lines.children[i-1]){
+      lines.children[i-1].className='tl done';
+      lines.children[i-1].textContent='✓ '+steps[i-1];
+    }
+    if(i<steps.length){
+      const el=document.createElement('div');
+      el.className='tl active';
+      el.textContent='› '+steps[i++];
+      lines.appendChild(el);
+      box.scrollTop=box.scrollHeight;
+    } else clearInterval(_termTimer);
+  },350);
+}
+
+function hideLoading(){ clearInterval(_termTimer); document.getElementById('loadingBox').classList.remove('visible'); }
+
+function showError(msg){
+  const eb=document.getElementById('errorBox');
+  eb.innerHTML=`⚠ ${msg}<div class="retry-note">چند ثانیه صبر کرده و دوباره تلاش کنید.</div>`;
+  eb.classList.add('visible');
+}
+
+// ═══════════════════════════════════════════
+//  FETCH
+// ═══════════════════════════════════════════
+async function fetchJSON(url, signal) {
+  const gap = Date.now() - _lastReqTime;
+  if (gap < RATE_GAP) await sleep(RATE_GAP - gap);
+  _lastReqTime = Date.now();
+  const res = await fetch(url, { signal });
+  if (res.status === 429) {
+    await sleep(5000);
+    _lastReqTime = Date.now();
+    const res2 = await fetch(url, { signal });
+    if (!res2.ok) throw new Error('Rate limit — چند ثانیه صبر کنید');
+    return res2.json();
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ═══════════════════════════════════════════
+//  GOLD IRAN
+// ═══════════════════════════════════════════
+async function fetchGoldIran(signal) {
+  const xauData = await fetchJSON(
+    'https://api.coingecko.com/api/v3/simple/price?ids=gold&vs_currencies=usd&include_24hr_change=true',
+    signal
+  );
+  let xauUSD = xauData?.gold?.usd || 3320;
+  const xau24hChange = xauData?.gold?.usd_24h_change || 0;
+
+  let usdToToman = 92000;
+  try {
+    const rateData = await fetchJSON(
+      'https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=irr',
+      signal
+    );
+    if (rateData?.tether?.irr) usdToToman = rateData.tether.irr / 10;
+  } catch(e) { if (e.name==='AbortError') throw e; }
+
+  // فرمول طلای ایران:
+  // ۱ اونس = ۳۱.۱۰۳۵ گرم
+  // ۱ مثقال = ۴.۶۰۸ گرم
+  // طلای ۱۸ عیار = (۱۸/۲۴) = ۰.۷۵ خلوص
+  const gramUSD   = xauUSD / 31.1035;           // قیمت هر گرم طلای ۲۴ عیار دلار
+  const gram18USD = gramUSD * 0.75;             // طلای ۱۸ عیار دلار
+  const gram18IRR = gram18USD * usdToToman;     // به تومان
+  const misqalUSD = gramUSD * 4.608;            // مثقال ۲۴ عیار
+  const misqal18  = misqalUSD * 0.75 * usdToToman; // مثقال ۱۸ عیار تومان
+
+  // اجرت ساخت تقریبی ~۱۰٪ + مالیات ۹٪
+  const gram18WithWage = gram18IRR * 1.10 * 1.09;
+
+  return {
+    xauUSD, xau24hChange, usdToToman,
+    gramUSD, gram18USD, gram18IRR,
+    misqal18, gram18WithWage
+  };
+}
+
+function renderGold(g) {
+  const fmt_t = n => Math.round(n).toLocaleString('fa-IR');
+  const fmt_d = n => n.toLocaleString('en-US',{maximumFractionDigits:2});
+
+  document.getElementById('goldResult').style.display='block';
+  document.getElementById('goldResult').innerHTML = `
+    <div class="gold-info">
+      <div class="gold-title">🥇 طلا ۱۸ عیار — قیمت لحظه‌ای (بر اساس بازار ایران)</div>
+      <div class="gold-grid">
+        <div class="gold-cell">
+          <div class="gold-cell-label">هر گرم طلا ۱۸ عیار</div>
+          <div class="gold-cell-value">${fmt_t(g.gram18IRR)} تومان</div>
+          <div class="gold-cell-sub">≈ $${fmt_d(g.gram18USD)}</div>
+        </div>
+        <div class="gold-cell">
+          <div class="gold-cell-label">با اجرت + مالیات (~۱۹٪)</div>
+          <div class="gold-cell-value">${fmt_t(g.gram18WithWage)} تومان</div>
+          <div class="gold-cell-sub">قیمت طلافروشی تقریبی</div>
+        </div>
+        <div class="gold-cell">
+          <div class="gold-cell-label">مثقال طلا ۱۸ عیار</div>
+          <div class="gold-cell-value">${fmt_t(g.misqal18)} تومان</div>
+          <div class="gold-cell-sub">۴.۶۰۸ گرم</div>
+        </div>
+        <div class="gold-cell">
+          <div class="gold-cell-label">اونس جهانی (XAU/USD)</div>
+          <div class="gold-cell-value" style="color:var(--t1)">$${fmt_d(g.xauUSD)}</div>
+          <div class="gold-cell-sub" style="color:${g.xau24hChange>=0?'var(--bull)':'var(--bear)'}">${g.xau24hChange>=0?'+':''}${g.xau24hChange.toFixed(2)}% امروز</div>
+        </div>
+      </div>
+      <div class="gold-cell" style="margin-bottom:10px">
+        <div class="gold-cell-label">نرخ دلار (تومان)</div>
+        <div class="gold-cell-value" style="font-size:0.85rem">${fmt_t(g.usdToToman)} تومان</div>
+        <div class="gold-cell-sub">بر اساس قیمت USDT/IRR در CoinGecko</div>
+      </div>
+      <div class="gold-note">
+        ⚠ قیمت‌ها بر اساس فرمول: (قیمت اونس جهانی ÷ ۳۱.۱ گرم) × خلوص ۰.۷۵ × نرخ دلار محاسبه شده‌اند.
+        قیمت دقیق بازار داخلی ممکن است با حباب سکه و عرضه و تقاضا تفاوت داشته باشد.
+      </div>
+    </div>
+  `;
+  document.getElementById('resultWrapper').classList.remove('visible');
+  document.getElementById('goldResult').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ═══════════════════════════════════════════
+//  USDT / تومان (نرخ دلار آزاد ایران)
+// ═══════════════════════════════════════════
+async function fetchUsdtToman(signal) {
+  const now = await fetchJSON(
+    'https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=irr&include_24hr_change=true&include_7d_change=true',
+    signal
+  );
+  const irrNow = now?.tether?.irr || 0;
+  const tomanNow = irrNow / 10;
+  const change24h = now?.tether?.irr_24h_change || 0;
+
+  const hist = await fetchJSON(
+    'https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=irr&days=90&interval=daily',
+    signal
+  );
+  const prices_irr = (hist?.prices || []).map(p => p[1] / 10); // به تومان
+
+  // محاسبه آمار
+  const max90 = Math.max(...prices_irr);
+  const min90 = Math.min(...prices_irr);
+  const avg30 = prices_irr.slice(-30).reduce((a,b)=>a+b,0) / Math.min(30, prices_irr.length);
+  const avg7  = prices_irr.slice(-7).reduce((a,b)=>a+b,0)  / Math.min(7,  prices_irr.length);
+
+  // روند ساده: مقایسه ۷ روز با ۳۰ روز
+  const trend = avg7 > avg30 * 1.01 ? 'صعودی' : avg7 < avg30 * 0.99 ? 'نزولی' : 'خنثی';
+  const trendCol = avg7 > avg30 * 1.01 ? 'var(--bear)' : avg7 < avg30 * 0.99 ? 'var(--bull)' : 'var(--neutral)';
+  // (صعودی دلار = بد برای بازار داخلی، رنگ قرمز)
+
+  return { tomanNow, change24h, max90, min90, avg30, avg7, trend, trendCol, prices_irr };
+}
+
+function renderUsdt(u) {
+  const ft = n => Math.round(n).toLocaleString('fa-IR');
+  const chSign = u.change24h >= 0 ? '+' : '';
+  const chCol = u.change24h >= 0 ? 'var(--bear)' : 'var(--bull)';
+  // دلار گران شد = قرمز (برای کاربر ایرانی)
+
+  document.getElementById('goldResult').style.display = 'block';
+  document.getElementById('resultWrapper').classList.remove('visible');
+  document.getElementById('goldResult').innerHTML = `
+    <div class="gold-info" style="border-color:rgba(14,165,233,0.35)">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),#38BDF8,transparent)"></div>
+      <div class="gold-title" style="color:var(--accent)">💵 قیمت تتر (USDT) — نرخ دلار آزاد ایران</div>
+      <div class="gold-grid">
+        <div class="gold-cell" style="border-color:rgba(14,165,233,0.2)">
+          <div class="gold-cell-label">قیمت لحظه‌ای تتر</div>
+          <div class="gold-cell-value" style="color:var(--accent);font-size:1.3rem">${ft(u.tomanNow)} تومان</div>
+          <div class="gold-cell-sub" style="color:${chCol}">${chSign}${u.change24h.toFixed(2)}% در ۲۴ ساعت</div>
+        </div>
+        <div class="gold-cell" style="border-color:rgba(14,165,233,0.2)">
+          <div class="gold-cell-label">روند ۷ روزه</div>
+          <div class="gold-cell-value" style="color:${u.trendCol}">${u.trend}</div>
+          <div class="gold-cell-sub">میانگین ۷ روز: ${ft(u.avg7)} تومان</div>
+        </div>
+        <div class="gold-cell" style="border-color:rgba(14,165,233,0.2)">
+          <div class="gold-cell-label">میانگین ۳۰ روزه</div>
+          <div class="gold-cell-value" style="color:var(--t1)">${ft(u.avg30)} تومان</div>
+          <div class="gold-cell-sub">مقیاس ماهانه</div>
+        </div>
+        <div class="gold-cell" style="border-color:rgba(14,165,233,0.2)">
+          <div class="gold-cell-label">بازه ۹۰ روزه</div>
+          <div class="gold-cell-value" style="font-size:0.8rem;color:var(--t1)">${ft(u.min90)} — ${ft(u.max90)}</div>
+          <div class="gold-cell-sub">کف و سقف سه ماهه</div>
+        </div>
+      </div>
+      <div class="gold-note" style="margin-top:8px">
+        ℹ️ <strong>چرا تتر؟</strong> قیمت تتر (USDT) در ایران برابر نرخ دلار آزاد بازار است.
+        وقتی می‌گویند «دلار ۱۰۰ تومان» یعنی تتر ۱۰۰ هزار تومان — هر دو یکی هستند.
+        داده از CoinGecko (نرخ USDT/IRR) دریافت شده است.
+      </div>
+    </div>
+  `;
+  document.getElementById('goldResult').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+
+async function fetchCoinData(coinId, signal) {
+  const B = 'https://api.coingecko.com/api/v3';
+
+  const mkt = await fetchJSON(
+    `${B}/coins/markets?vs_currency=usd&ids=${coinId}&price_change_percentage=1h,24h,7d`,
+    signal
+  );
+  if (!mkt || mkt.length === 0)
+    throw new Error(`ارز "${activeCoinSym}" پیدا نشد — نام یا نماد را بررسی کنید`);
+  const m = mkt[0];
+
+  const ohlc = await fetchJSON(`${B}/coins/${coinId}/ohlc?vs_currency=usd&days=90`, signal);
+
+  const chart = await fetchJSON(
+    `${B}/coins/${coinId}/market_chart?vs_currency=usd&days=7&interval=hourly`,
+    signal
+  );
+  const hourlyPrices = chart.prices.map(p => p[1]);
+  const hourlyVols   = chart.total_volumes.map(p => p[1]);
+
+  return { mkt: m, ohlc, hourlyPrices, hourlyVols };
+}
+
+// ═══════════════════════════════════════════
+//  TECHNICAL INDICATORS
+// ═══════════════════════════════════════════
+function rsi(prices,period=14){
+  if(prices.length<period+1) return 50;
+  let g=0,l=0;
+  for(let i=1;i<=period;i++){const d=prices[i]-prices[i-1];if(d>=0)g+=d;else l-=d;}
+  let ag=g/period,al=l/period;
+  for(let i=period+1;i<prices.length;i++){
+    const d=prices[i]-prices[i-1];
+    ag=(ag*(period-1)+Math.max(d,0))/period;
+    al=(al*(period-1)+Math.max(-d,0))/period;
+  }
+  return al===0?100:100-(100/(1+ag/al));
+}
+
+function ema(prices,period){
+  if(!prices.length) return 0;
+  const k=2/(period+1);
+  let e=prices[0];
+  for(let i=1;i<prices.length;i++) e=prices[i]*k+e*(1-k);
+  return e;
+}
+
+function sma(prices,period){const s=prices.slice(-period);return s.reduce((a,b)=>a+b,0)/s.length;}
+
+function macd(prices){
+  if(prices.length<35) return{macd:0,signal:0,hist:0};
+  const k12=2/13,k26=2/27,ks=2/10;
+  let e12=prices[0],e26=prices[0];
+  const ml=[];
+  for(let i=1;i<prices.length;i++){
+    e12=prices[i]*k12+e12*(1-k12);
+    e26=prices[i]*k26+e26*(1-k26);
+    if(i>=25) ml.push(e12-e26);
+  }
+  let sig=ml[0];
+  for(let i=1;i<ml.length;i++) sig=ml[i]*ks+sig*(1-ks);
+  const last=ml[ml.length-1];
+  return{macd:last,signal:sig,hist:last-sig};
+}
+
+function bb(prices,period=20,mult=2){
+  const s=prices.slice(-period);
+  const mid=s.reduce((a,b)=>a+b,0)/period;
+  const std=Math.sqrt(s.map(p=>(p-mid)**2).reduce((a,b)=>a+b,0)/period);
+  return{upper:mid+mult*std,mid,lower:mid-mult*std,std};
+}
+
+function atr(ohlc,period=14){
+  if(ohlc.length<2) return 0;
+  const trs=[];
+  for(let i=1;i<ohlc.length;i++){
+    const h=ohlc[i][2],l=ohlc[i][3],pc=ohlc[i-1][4];
+    trs.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
+  }
+  return sma(trs,Math.min(period,trs.length));
+}
+
+function vwap(hp,hv){
+  let pv=0,v=0,n=Math.min(24,hp.length,hv.length);
+  for(let i=hp.length-n;i<hp.length;i++){pv+=hp[i]*hv[i];v+=hv[i];}
+  return v>0?pv/v:hp[hp.length-1];
+}
+
+function supportResistance(ohlc){
+  const highs=ohlc.map(c=>c[2]),lows=ohlc.map(c=>c[3]);
+  const price=ohlc[ohlc.length-1][4];
+  const all=[...highs.slice(-30),...lows.slice(-30)].sort((a,b)=>a-b);
+  const clusters=[];
+  for(const v of all){
+    const near=clusters.find(c=>Math.abs(c.price-v)/v<0.013);
+    if(near){near.price=(near.price+v)/2;near.count++;}
+    else clusters.push({price:v,count:1});
+  }
+  const strong=clusters.filter(c=>c.count>=2).sort((a,b)=>b.count-a.count).slice(0,8);
+  return{
+    supports:   strong.filter(c=>c.price<price).sort((a,b)=>b.price-a.price).slice(0,3),
+    resistances:strong.filter(c=>c.price>price).sort((a,b)=>a.price-b.price).slice(0,3)
+  };
+}
+
+// ═══════════════════════════════════════════
+//  FORECAST ENGINE
+// ═══════════════════════════════════════════
+function forecastEngine(price,{rsiVal,macdData,bbData,ema20,ema50,ema200,vwapVal,change24h,change7d},atrVal){
+  let score=0; const signals=[];
+
+  // RSI
+  if(rsiVal<30){score+=2;signals.push({name:'RSI',msg:'اشباع فروش — بازگشت محتمل',col:'bull'});}
+  else if(rsiVal<45){score+=1;signals.push({name:'RSI',msg:'منطقه خرید',col:'bull'});}
+  else if(rsiVal>70){score-=2;signals.push({name:'RSI',msg:'اشباع خرید — اصلاح محتمل',col:'bear'});}
+  else if(rsiVal>58){score-=1;signals.push({name:'RSI',msg:'منطقه اشباع نسبی',col:'neutral'});}
+  else signals.push({name:'RSI',msg:'منطقه خنثی',col:'neutral'});
+
+  // MACD
+  if(macdData.hist>0&&macdData.macd>macdData.signal){score+=2;signals.push({name:'MACD',msg:'کراس صعودی',col:'bull'});}
+  else if(macdData.hist>0){score+=1;signals.push({name:'MACD',msg:'مومنتوم مثبت',col:'bull'});}
+  else if(macdData.hist<0&&macdData.macd<macdData.signal){score-=2;signals.push({name:'MACD',msg:'کراس نزولی',col:'bear'});}
+  else{score-=1;signals.push({name:'MACD',msg:'مومنتوم منفی',col:'bear'});}
+
+  // BB
+  const bbPos=(price-bbData.lower)/(bbData.upper-bbData.lower||1);
+  if(bbPos<0.15){score+=2;signals.push({name:'BB',msg:'نزدیک باند پایین',col:'bull'});}
+  else if(bbPos<0.35){score+=1;signals.push({name:'BB',msg:'زیر میانه',col:'bull'});}
+  else if(bbPos>0.85){score-=2;signals.push({name:'BB',msg:'نزدیک باند بالا',col:'bear'});}
+  else if(bbPos>0.65){score-=1;signals.push({name:'BB',msg:'بالای میانه',col:'bear'});}
+  else signals.push({name:'BB',msg:'میانه باند',col:'neutral'});
+
+  // EMA Stack
+  const emaStack=(price>ema20?1:0)+(ema20>ema50?1:0)+(ema50>ema200?1:0);
+  if(emaStack===3){score+=2;signals.push({name:'EMA',msg:'روند صعودی کامل',col:'bull'});}
+  else if(emaStack===2){score+=1;signals.push({name:'EMA',msg:'روند صعودی ضعیف',col:'bull'});}
+  else if(emaStack===0){score-=2;signals.push({name:'EMA',msg:'روند نزولی کامل',col:'bear'});}
+  else{score-=1;signals.push({name:'EMA',msg:'روند مختلط',col:'neutral'});}
+
+  // VWAP
+  if(price>vwapVal*1.02){score-=1;signals.push({name:'VWAP',msg:'بالاتر از VWAP',col:'bear'});}
+  else if(price<vwapVal*0.98){score+=1;signals.push({name:'VWAP',msg:'پایین‌تر از VWAP',col:'bull'});}
+  else signals.push({name:'VWAP',msg:'نزدیک VWAP',col:'neutral'});
+
+  // 7d
+  if(change7d>15){score-=1;signals.push({name:'7D',msg:'رشد زیاد — احتیاط',col:'bear'});}
+  else if(change7d>5){score+=1;signals.push({name:'7D',msg:'مومنتوم هفتگی مثبت',col:'bull'});}
+  else if(change7d<-15){score+=1;signals.push({name:'7D',msg:'افت زیاد — بازگشت',col:'bull'});}
+  else if(change7d<-5){score-=1;signals.push({name:'7D',msg:'مومنتوم هفتگی منفی',col:'bear'});}
+  else signals.push({name:'7D',msg:'روند هفتگی خنثی',col:'neutral'});
+
+  const maxS=12, norm=Math.max(-maxS,Math.min(maxS,score));
+  const bullPct=(norm+maxS)/(2*maxS);
+  let trend,verdictFa;
+  if(bullPct>=0.60){trend='bull';verdictFa='📈 صعودی';}
+  else if(bullPct<=0.40){trend='bear';verdictFa='📉 نزولی';}
+  else{trend='neutral';verdictFa='↔ خنثی';}
+
+  const m={bull:{up:1.8,down:0.6},bear:{up:0.6,down:1.8},neutral:{up:1.0,down:1.0}}[trend];
+  const factor=1+Math.abs(bullPct-0.5);
+  const targetBull=price+atrVal*m.up*factor;
+  const targetBear=price-atrVal*m.down*factor;
+
+  const rsiClarity=Math.abs(rsiVal-50)/50;
+  const scoreClarity=Math.abs(norm)/maxS;
+  const confidence=Math.round(50+(scoreClarity*0.6+rsiClarity*0.4)*40);
+
+  const drift=(targetBull-price)*bullPct+(targetBear-price)*(1-bullPct);
+  const sigma=atrVal/price*0.28;
+  const curve=[price];
+  for(let i=1;i<25;i++){
+    const prev=curve[i-1];
+    const td=drift/24*2;
+    const noise=(Math.random()-0.49)*sigma*prev;
+    const mr=(price-prev)*0.018;
+    curve.push(Math.max(prev+td+noise+mr,price*0.65));
+  }
+
+  const rsiTxt=rsiVal<30?`RSI در منطقه اشباع فروش (${rsiVal.toFixed(0)}) — بازگشت قیمتی محتمل است.`
+    :rsiVal>70?`RSI در منطقه اشباع خرید (${rsiVal.toFixed(0)}) — احتمال اصلاح وجود دارد.`
+    :`RSI در محدوده ${rsiVal.toFixed(0)} — وضعیت خنثی.`;
+  const macdTxt=macdData.hist>0?'MACD مثبت و در فاز صعودی است.':'MACD منفی است — فشار فروش وجود دارد.';
+  const emaTxt=emaStack===3?'قیمت بالاتر از EMA20/50/200 — روند بلندمدت صعودی.'
+    :emaStack===0?'قیمت پایین‌تر از تمام EMAها — فشار نزولی ساختاری.'
+    :`وضعیت EMA مختلط (${emaStack}/3).`;
+  const analysisFa=`${rsiTxt} ${macdTxt} ${emaTxt} امتیاز کل سیگنال: ${norm>0?'+'+norm:norm} از ${maxS}.`;
+
+  const tfs=['6h','12h','24h','48h'].map((lbl,i)=>{
+    const frac=[0.25,0.5,0.75,1.0][i];
+    const proj=price+drift*frac;
+    const pct=((proj-price)/price*100).toFixed(2);
+    const col=proj>price*1.002?'bull':proj<price*0.998?'bear':'neutral';
+    return{label:lbl,signal_fa:`هدف: ${fmt(proj)} (${pct>=0?'+':''}${pct}%)`,detail_fa:col==='bull'?'سیگنال خرید':col==='bear'?'سیگنال فروش':'بازار خنثی',col};
+  });
+
+  return{trend,verdictFa,targetBull,targetBear,confidence,curve,analysisFa,signals,score:norm,maxScore:maxS,bullishPct:bullPct,tfs,rsiVal,macdData,bbData,bbPos,ema20,ema50,ema200,atrVal,vwapVal,emaStack};
+}
+
+// ═══════════════════════════════════════════
+//  CHART
+// ═══════════════════════════════════════════
+function drawChart(data,trend,price){
+  const canvas=document.getElementById('forecastChart');
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr; canvas.height=130*dpr;
+  ctx.scale(dpr,dpr);
+  const W=rect.width,H=130;
+  ctx.clearRect(0,0,W,H);
+  const min=Math.min(...data)*0.9985,max=Math.max(...data)*1.0015,range=max-min||1;
+  const pts=data.map((v,i)=>({x:(i/(data.length-1))*W,y:H-((v-min)/range)*(H-24)-12}));
+  const col=trend==='bull'?'16,185,129':trend==='bear'?'239,68,68':'14,165,233';
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,`rgba(${col},0.22)`); grad.addColorStop(1,`rgba(${col},0)`);
+  ctx.beginPath(); ctx.moveTo(pts[0].x,H); ctx.lineTo(pts[0].x,pts[0].y);
+  pts.slice(1).forEach((p,i)=>{const pv=pts[i];const cx=(pv.x+p.x)/2;ctx.bezierCurveTo(cx,pv.y,cx,p.y,p.x,p.y);});
+  ctx.lineTo(pts[pts.length-1].x,H); ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+  pts.slice(1).forEach((p,i)=>{const pv=pts[i];const cx=(pv.x+p.x)/2;ctx.bezierCurveTo(cx,pv.y,cx,p.y,p.x,p.y);});
+  ctx.strokeStyle=`rgba(${col},0.9)`; ctx.lineWidth=2.5;
+  ctx.shadowColor=`rgba(${col},0.4)`; ctx.shadowBlur=8; ctx.stroke(); ctx.shadowBlur=0;
+  const nowY=H-((price-min)/range)*(H-24)-12;
+  ctx.beginPath(); ctx.setLineDash([3,3]);
+  ctx.moveTo(0,nowY); ctx.lineTo(W,nowY);
+  ctx.strokeStyle='rgba(148,163,184,0.2)'; ctx.lineWidth=1; ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(148,163,184,0.45)'; ctx.font='9px JetBrains Mono,monospace';
+  ctx.fillText('NOW',4,nowY-3);
+  [0,6,12,18,24].forEach(idx=>{if(idx<pts.length){ctx.beginPath();ctx.arc(pts[idx].x,pts[idx].y,3.5,0,Math.PI*2);ctx.fillStyle=`rgba(${col},1)`;ctx.fill();}});
+  const labels=document.getElementById('chartLabels'); labels.innerHTML='';
+  [0,6,12,18,24,36,48].forEach(h=>{const s=document.createElement('span');s.textContent=h===0?'اکنون':`+${h}h`;labels.appendChild(s);});
+}
+
+// ═══════════════════════════════════════════
+//  FORMAT
+// ═══════════════════════════════════════════
+function fmt(n){
+  if(n===null||n===undefined) return '—';
+  if(n>=1000) return '$'+n.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(n>=1)    return '$'+n.toLocaleString('en-US',{maximumFractionDigits:3});
+  if(n>=0.01) return '$'+n.toFixed(5);
+  return '$'+n.toExponential(3);
+}
+
+// ═══════════════════════════════════════════
+//  RENDER CRYPTO
+// ═══════════════════════════════════════════
+function renderResult(price,change24h,change7d,ana,sr,mkt){
+  document.getElementById('goldResult').style.display='none';
+  const{trend,verdictFa,targetBull,targetBear,confidence,curve,analysisFa,signals,tfs}=ana;
+  document.getElementById('resCoinName').textContent=`${mkt.symbol.toUpperCase()} / USDT`;
+  document.getElementById('resLivePrice').textContent=fmt(price);
+  const chEl=document.getElementById('resPriceChange');
+  chEl.textContent=(change24h>=0?'+':'')+change24h.toFixed(2)+'%';
+  chEl.className='price-change '+(change24h>=0?'bull':'bear');
+  const v=document.getElementById('resVerdict');
+  v.textContent=verdictFa; v.className=`verdict-badge ${trend}`;
+  document.getElementById('resBull').textContent=fmt(targetBull);
+  document.getElementById('resBase').textContent=fmt(price);
+  document.getElementById('resBear').textContent=fmt(targetBear);
+  document.getElementById('resAnalysis').textContent=analysisFa;
+  document.getElementById('summaryCard').className='summary-card';
+  const conf=Math.min(90,Math.max(45,confidence));
+  document.getElementById('confPct').textContent=conf+'%';
+  setTimeout(()=>document.getElementById('confBar').style.width=conf+'%',300);
+
+  // Indicators
+  const grid=document.getElementById('indGrid'); grid.innerHTML='';
+  [
+    {name:'RSI 14',value:ana.rsiVal?.toFixed(1)||'—',signal:signals.find(s=>s.name==='RSI')?.msg||'',col:signals.find(s=>s.name==='RSI')?.col||'neutral'},
+    {name:'MACD',value:ana.macdData?(ana.macdData.hist>0?'▲ ':'▼ ')+Math.abs(ana.macdData.hist).toExponential(2):'—',signal:signals.find(s=>s.name==='MACD')?.msg||'',col:signals.find(s=>s.name==='MACD')?.col||'neutral'},
+    {name:'BB موقعیت',value:ana.bbPos!==undefined?(ana.bbPos*100).toFixed(0)+'%':'—',signal:signals.find(s=>s.name==='BB')?.msg||'',col:signals.find(s=>s.name==='BB')?.col||'neutral'},
+    {name:'EMA Stack',value:`${ana.emaStack}/3`,signal:signals.find(s=>s.name==='EMA')?.msg||'',col:signals.find(s=>s.name==='EMA')?.col||'neutral'},
+    {name:'VWAP',value:fmt(ana.vwapVal),signal:signals.find(s=>s.name==='VWAP')?.msg||'',col:signals.find(s=>s.name==='VWAP')?.col||'neutral'},
+    {name:'ATR 14',value:fmt(ana.atrVal),signal:'نوسان روزانه',col:'neutral'},
+    {name:'EMA 20',value:fmt(ana.ema20),signal:price>ana.ema20?'قیمت بالاتر':'قیمت پایین‌تر',col:price>ana.ema20?'bull':'bear'},
+    {name:'EMA 200',value:fmt(ana.ema200),signal:price>ana.ema200?'روند بلند صعودی':'روند بلند نزولی',col:price>ana.ema200?'bull':'bear'},
+    {name:'Cap بازار',value:mkt.market_cap>1e9?'$'+(mkt.market_cap/1e9).toFixed(1)+'B':'$'+(mkt.market_cap/1e6).toFixed(0)+'M',signal:'رتبه #'+mkt.market_cap_rank,col:'neutral'},
+    {name:'حجم ۲۴h',value:mkt.total_volume>1e9?'$'+(mkt.total_volume/1e9).toFixed(1)+'B':'$'+(mkt.total_volume/1e6).toFixed(0)+'M',signal:'Vol/Cap: '+(mkt.total_volume/mkt.market_cap*100).toFixed(1)+'%',col:mkt.total_volume/mkt.market_cap>0.08?'bull':'neutral'},
+    {name:'امتیاز کل',value:(ana.score>0?'+':'')+ana.score+'/'+ana.maxScore,signal:ana.bullishPct>=0.6?'سیگنال صعودی':ana.bullishPct<=0.4?'سیگنال نزولی':'سیگنال خنثی',col:ana.bullishPct>=0.6?'bull':ana.bullishPct<=0.4?'bear':'neutral'},
+    {name:'تغییر ۷روز',value:(change7d>=0?'+':'')+change7d?.toFixed(2)+'%',signal:signals.find(s=>s.name==='7D')?.msg||'',col:signals.find(s=>s.name==='7D')?.col||'neutral'},
+  ].forEach(ind=>{
+    const card=document.createElement('div'); card.className='ind-card';
+    const cc=ind.col==='bull'?'bull':ind.col==='bear'?'bear':'cneutral';
+    card.innerHTML=`<div class="ind-name">${ind.name}</div><div class="ind-value ${cc}">${ind.value}</div><div class="ind-signal">${ind.signal}</div>`;
+    grid.appendChild(card);
+  });
+
+  // Timeframes
+  tfs.forEach(tf=>{
+    const k=tf.label.replace('h','');
+    const s=document.getElementById('tf'+k+'s'),dd=document.getElementById('tf'+k+'d');
+    if(s){s.textContent=tf.signal_fa;s.style.color=tf.col==='bull'?'var(--bull)':tf.col==='bear'?'var(--bear)':'var(--neutral)';}
+    if(dd) dd.textContent=tf.detail_fa;
+  });
+
+  // S/R
+  const body=document.getElementById('levelsBody'); body.innerHTML='';
+  sr.resistances.slice().reverse().forEach(l=>{
+    const pct=((l.price-price)/price*100).toFixed(2);
+    body.innerHTML+=`<div class="level-row"><div class="level-type">مقاومت (${l.count}x)</div><div class="level-price bear">${fmtSR(l.price,price)}</div><div class="level-dist bear">+${pct}%</div></div>`;
+  });
+  body.innerHTML+=`<div class="level-row" style="background:var(--as)"><div class="level-type">◉ قیمت فعلی</div><div class="level-price">${fmt(price)}</div><div class="level-dist">—</div></div>`;
+  sr.supports.forEach(l=>{
+    const pct=((l.price-price)/price*100).toFixed(2);
+    body.innerHTML+=`<div class="level-row"><div class="level-type">حمایت (${l.count}x)</div><div class="level-price bull">${fmtSR(l.price,price)}</div><div class="level-dist bull">${pct}%</div></div>`;
+  });
+
+  document.getElementById('chartMeta').textContent=`اطمینان: ${conf}%  ·  ATR: ${fmt(ana.atrVal)}`;
+  setTimeout(()=>drawChart(curve,trend,price),100);
+  document.getElementById('resTimestamp').textContent=
+    `تحلیل شده در ${new Date().toLocaleString('fa-IR')} · داده: CoinGecko · الگوریتم: RSI·MACD·BB·EMA·ATR·VWAP·S/R`;
+  document.getElementById('resultWrapper').classList.add('visible');
+  document.getElementById('resultWrapper').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function fmtSR(n,ref){
+  if(ref<1) return '$'+n.toFixed(6);
+  if(ref<10) return '$'+n.toFixed(4);
+  if(ref<1000) return '$'+n.toFixed(2);
+  return '$'+Math.round(n).toLocaleString('en-US');
+}
+
+// ═══════════════════════════════════════════
+//  MAIN
+// ═══════════════════════════════════════════
+async function runAnalysis() {
+  // کنسل کردن درخواست قبلی به شکل امن
+  if (_abortCtrl) {
+    try { _abortCtrl.abort(); } catch(e) {}
+    await sleep(150);
+  }
+  _abortCtrl = new AbortController();
+  const signal = _abortCtrl.signal;
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ در حال دریافت داده...';
+  document.getElementById('errorBox').classList.remove('visible');
+  document.getElementById('resultWrapper').classList.remove('visible');
+  document.getElementById('goldResult').style.display = 'none';
+  document.getElementById('confBar').style.width = '0';
+
+  try {
+    if (isUsdt) {
+      showLoading(USDT_STEPS);
+      const u = await fetchUsdtToman(signal);
+      hideLoading();
+      renderUsdt(u);
+    } else if (isGold) {
+      showLoading(GOLD_STEPS);
+      const g = await fetchGoldIran(signal);
+      hideLoading();
+      renderGold(g);
+    } else {
+      showLoading(CRYPTO_STEPS);
+      const { mkt, ohlc, hourlyPrices, hourlyVols } = await fetchCoinData(activeCoinId, signal);
+      const price    = mkt.current_price;
+      const change24h = mkt.price_change_percentage_24h || 0;
+      const change7d  = mkt.price_change_percentage_7d_in_currency || 0;
+      const dailyClose = ohlc.map(c => c[4]);
+      const rsiVal   = rsi(hourlyPrices, 14);
+      const macdData = macd(hourlyPrices);
+      const bbData   = bb(hourlyPrices, 20, 2);
+      const ema20    = ema(dailyClose.slice(-60), 20);
+      const ema50    = ema(dailyClose.slice(-80), 50);
+      const ema200   = ema(dailyClose, 200);
+      const atrVal   = atr(ohlc, 14);
+      const vwapVal  = vwap(hourlyPrices, hourlyVols);
+      const sr       = supportResistance(ohlc.slice(-60));
+      const ana      = forecastEngine(price, { rsiVal, macdData, bbData, ema20, ema50, ema200, vwapVal, change24h, change7d }, atrVal);
+      hideLoading();
+      renderResult(price, change24h, change7d, ana, sr, mkt);
+    }
+  } catch(e) {
+    hideLoading();
+    if (e.name !== 'AbortError') {
+      showError(e.message || 'خطای ناشناخته — اینترنت را بررسی کنید.');
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📡 تحلیل مجدد';
+}
+
+window.addEventListener('load', () => {
+  // هشدار اگر فایل مستقیم باز شده (file://)
+  if (location.protocol === 'file:') {
+    showError(
+      'فایل به صورت مستقیم باز شده است (file://)\n\n' +
+      'برای کارکرد صحیح باید روی یک سرور اجرا شود:\n' +
+      '• GitHub Pages یا Netlify (رایگان)\n' +
+      '• یا در ترمینال: python3 -m http.server 8080\n' +
+      '  سپس در مرورگر: http://localhost:8080'
+    );
+    document.getElementById('analyzeBtn').disabled = true;
+    return;
+  }
+
+  const params = new URLSearchParams(location.search);
+  const coinParam = params.get('coin');
+  if (coinParam === 'usdt') {
+    activeCoinId='USDT_IR'; activeCoinSym='USDT'; isUsdt=true; isGold=false;
+    document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-coin="USDT_IR"]')?.classList.add('active');
+  } else if (coinParam === 'gold') {
+    activeCoinId='GOLD_IR'; activeCoinSym='طلا'; isGold=true; isUsdt=false;
+    document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-coin="GOLD_IR"]')?.classList.add('active');
+  } else if (coinParam) {
+    const { id, sym } = resolveCoinId(coinParam);
+    activeCoinId=id; activeCoinSym=sym; isGold=false; isUsdt=false;
+  }
+});
+</script>
+<script>
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
